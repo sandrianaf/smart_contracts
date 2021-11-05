@@ -3,42 +3,43 @@
 using namespace eosio;
 using namespace std;
 
-class [[eosio::contract]] hello : public eosio::contract
+class [[eosio::contract]] hellobaru : public eosio::contract
 {
 
 private:
-    struct [[eosio::table]] users_struct
+    struct [[eosio::table]] user
     {
         name name;
-        uint16_t reward_points = 0;
+        uint16_t jumlah = 0;
 
         uint64_t primary_key() const { return name.value; }
     };
-
-    typedef eosio::multi_index<"users"_n, users_struct> users_table;
+    using user_index = eosio::multi_index<"login"_n> user;
+    //diganti sm yg diatasnya
+    //typedef eosio::multi_index<"users"_n, users_struct> users_table;
 
 public:
-    hello(name receiver, name code, datastream<const char *> ds) : contract(receiver, code, ds){};
+    hellobaru(name receiver, name code, datastream<const char *> ds) : contract(receiver, code, ds) {}
 
-    [[eosio::action]] void login(name user)
+    [[eosio::action]] void login(name username)
     {
         // Ensure this action is authorized by the player
-        require_auth(user);
+        require_auth(username);
 
         // Create a record in the table if the player doesn't exist in our app yet
-        users_table _users(_code, _code.value);
-        auto user_iterator = _users.find(user.value);
-        if (user_iterator == _users.end())
+        user_index user_login(get_self(), get_self().value);
+        auto iterator = user_login.find(username.value);
+        if (iterator == user_login.end())
         {
-            user_iterator = _users.emplace(user, [&](auto &new_user)
-                                           { new_user.name = user; });
+            iterator = user_login.emplace(username, [&](auto &new_user)
+                                          { new_user.name = username; });
         }
         else
         {
-            _users.modify(user_iterator, user, [&](auto &row)
-                          { row.reward_points = row.reward_points + 1; });
+            user_login.modify(iterator, username, [&](auto &row)
+                              { row.jumlah = row.jumlah + 1; });
         }
     }
 };
-
+//sandriana
 EOSIO_DISPATCH(hello, (login))
