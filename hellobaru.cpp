@@ -41,5 +41,5 @@ public:
         }
     }
 };
-//sandriana
+//smart contract login
 EOSIO_DISPATCH(hello, (login))
